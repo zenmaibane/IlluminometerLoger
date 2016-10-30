@@ -14,30 +14,32 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
     SensorManager sensorManager;
+    boolean isWorking = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.sensorSwitch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Hello Android!!",Toast.LENGTH_LONG).show();
-
+//                Toast.makeText(MainActivity.this, "Hello Android!!",Toast.LENGTH_LONG).show();
+                if (isWorking) {
+                    stopMonitoring();
+                } else {
+                    startMonitoring();
+                }
             }
         });
-
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        TextView textView = (TextView)findViewById(R.id.textView2);
-        String str ="OK";
-
-        if (event.sensor.getType() == Sensor.TYPE_LIGHT){
-            System.out.println("fdfdfa");
+        TextView textView = (TextView)findViewById(R.id.sensorResult);
+        String str = "ボタンを押してください";
+        if (isWorking && event.sensor.getType() == Sensor.TYPE_LIGHT){
             str = "照度:" + event.values[0];
-            textView.setText(str);
         }
+        textView.setText(str);
     }
 
     @Override
@@ -59,4 +61,16 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
             sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_UI);
         }
     }
+
+    private void startMonitoring(){
+        TextView textView = (TextView) findViewById(R.id.sensorSwitch);
+        textView.setText("モニター停止");
+        isWorking = true;
+    }
+    private void stopMonitoring(){
+        TextView textView = (TextView) findViewById(R.id.sensorSwitch);
+        textView.setText("モニター開始");
+        isWorking = false;
+    }
 }
+
