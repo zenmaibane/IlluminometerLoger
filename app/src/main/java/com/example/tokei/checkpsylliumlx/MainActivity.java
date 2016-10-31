@@ -1,5 +1,6 @@
 package com.example.tokei.checkpsylliumlx;
 
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -10,11 +11,18 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.LineData;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
     SensorManager sensorManager;
     boolean isWorking = false;
+    private LineChart mChart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +79,41 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         TextView textView = (TextView) findViewById(R.id.sensorSwitch);
         textView.setText("モニター開始");
         isWorking = false;
+    }
+    private void initChart(){
+        mChart.setTouchEnabled(true);
+
+        mChart.setDragEnabled(true);
+        mChart.setScaleEnabled(true);
+        mChart.setDrawGridBackground(false);
+
+        mChart.setPinchZoom(true);
+
+        mChart.setBackgroundColor(Color.LTGRAY);
+
+        LineData lineData = new LineData();
+        lineData.setValueTextColor(Color.BLACK);
+
+        mChart.setData(lineData);
+
+        Legend legend = mChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextColor(Color.BLACK);
+
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.setTextColor(Color.BLACK);
+        xAxis.setLabelsToSkip(9);
+
+        YAxis leftAxis = mChart.getAxisLeft();
+        leftAxis.setTextColor(Color.BLACK);
+        leftAxis.setAxisMaxValue(3.0f);
+        leftAxis.setAxisMinValue(-3.0f);
+        leftAxis.setStartAtZero(false);
+        leftAxis.setDrawGridLines(true);
+
+        YAxis rightAxis = mChart.getAxisRight();
+        rightAxis.setEnabled(false);
+
     }
 }
 
