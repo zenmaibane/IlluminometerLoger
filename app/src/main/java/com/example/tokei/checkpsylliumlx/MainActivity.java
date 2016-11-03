@@ -1,6 +1,5 @@
 package com.example.tokei.checkpsylliumlx;
 
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,20 +8,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.LineData;
-
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+
 
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
     SensorManager sensorManager;
     boolean isWorking = false;
-    private LineChart mChart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +34,8 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
                     stopMonitoring();
                 } else {
                     startMonitoring();
+                    sampleFileOutput();
+
                 }
             }
         });
@@ -80,40 +81,23 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         textView.setText("モニター開始");
         isWorking = false;
     }
-    private void initChart(){
-        mChart.setTouchEnabled(true);
-
-        mChart.setDragEnabled(true);
-        mChart.setScaleEnabled(true);
-        mChart.setDrawGridBackground(false);
-
-        mChart.setPinchZoom(true);
-
-        mChart.setBackgroundColor(Color.LTGRAY);
-
-        LineData lineData = new LineData();
-        lineData.setValueTextColor(Color.BLACK);
-
-        mChart.setData(lineData);
-
-        Legend legend = mChart.getLegend();
-        legend.setForm(Legend.LegendForm.LINE);
-        legend.setTextColor(Color.BLACK);
-
-        XAxis xAxis = mChart.getXAxis();
-        xAxis.setTextColor(Color.BLACK);
-        xAxis.setLabelsToSkip(9);
-
-        YAxis leftAxis = mChart.getAxisLeft();
-        leftAxis.setTextColor(Color.BLACK);
-        leftAxis.setAxisMaxValue(3.0f);
-        leftAxis.setAxisMinValue(-3.0f);
-        leftAxis.setStartAtZero(false);
-        leftAxis.setDrawGridLines(true);
-
-        YAxis rightAxis = mChart.getAxisRight();
-        rightAxis.setEnabled(false);
-
+    private void  sampleFileOutput(){
+        try{
+            String s = "キラキラキュートきめちゃって";
+            //OutputStream取得
+            FileOutputStream file = openFileOutput("test.txt", MODE_PRIVATE);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
+            out.write(s);
+            out.flush();
+            out.close();
+            System.out.println(getExternalFilesDir(null));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
