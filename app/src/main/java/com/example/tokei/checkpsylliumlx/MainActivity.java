@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,8 +33,14 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
                 if (isWorking) {
                     stopMonitoring();
                 } else {
-                    startMonitoring();
-                    sampleFileOutput();
+                    EditText editText = (EditText)findViewById(R.id.saveFileName);
+                    String text = editText.getText().toString().trim();
+                    if (text == null || text.equals("")){
+                        Toast.makeText(MainActivity.this, "ファイル名を入力してください",Toast.LENGTH_LONG).show();
+                    }else {
+                        startMonitoring();
+                        sampleFileOutput(text);
+                    }
                 }
             }
         });
@@ -78,15 +86,12 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         textView.setText("モニター開始");
         isWorking = false;
     }
-    private void  sampleFileOutput(){
+    private void  sampleFileOutput(String filename){
         try{
             String s = "you're my destiny";
-            EditText editText = (EditText)findViewById(R.id.saveFileName);
-            String text = editText.getText().toString();
-            FileOutputStream file = openFileOutput(text+".txt", MODE_PRIVATE);
+            FileOutputStream file = openFileOutput(filename+".txt", MODE_PRIVATE);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
             out.write(s);
-            out.flush();
             out.close();
             System.out.println(getExternalFilesDir(null));
         } catch (FileNotFoundException e) {
