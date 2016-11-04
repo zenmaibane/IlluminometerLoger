@@ -7,8 +7,8 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
-
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-
 
 
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
@@ -29,13 +28,11 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         findViewById(R.id.sensorSwitch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(MainActivity.this, "Hello Android!!",Toast.LENGTH_LONG).show();
                 if (isWorking) {
                     stopMonitoring();
                 } else {
                     startMonitoring();
                     sampleFileOutput();
-
                 }
             }
         });
@@ -44,11 +41,11 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
     @Override
     public void onSensorChanged(SensorEvent event) {
         TextView textView = (TextView)findViewById(R.id.sensorResult);
-        String str = "ボタンを押してください";
+        String message = "モニタが開始されていません";
         if (isWorking && event.sensor.getType() == Sensor.TYPE_LIGHT){
-            str = "照度:" + event.values[0];
+            message = "照度:" + event.values[0];
         }
-        textView.setText(str);
+        textView.setText(message);
     }
 
     @Override
@@ -83,9 +80,10 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
     }
     private void  sampleFileOutput(){
         try{
-            String s = "キラキラキュートきめちゃって";
-            //OutputStream取得
-            FileOutputStream file = openFileOutput("test.txt", MODE_PRIVATE);
+            String s = "you're my destiny";
+            EditText editText = (EditText)findViewById(R.id.saveFileName);
+            String text = editText.getText().toString();
+            FileOutputStream file = openFileOutput(text+".txt", MODE_PRIVATE);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
             out.write(s);
             out.flush();
