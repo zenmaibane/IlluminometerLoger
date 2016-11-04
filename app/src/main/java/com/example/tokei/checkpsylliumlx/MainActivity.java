@@ -23,6 +23,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
     SensorManager sensorManager;
     boolean isWorking = false;
+    String filename;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,12 +35,11 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
                     stopMonitoring();
                 } else {
                     EditText editText = (EditText)findViewById(R.id.saveFileName);
-                    String text = editText.getText().toString().trim();
-                    if (text == null || text.equals("")){
+                    filename = editText.getText().toString().trim();
+                    if (filename == null || filename.equals("")){
                         Toast.makeText(MainActivity.this, "ファイル名を入力してください",Toast.LENGTH_LONG).show();
                     }else {
                         startMonitoring();
-                        sampleFileOutput(text);
                     }
                 }
             }
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         String message = "モニタが開始されていません";
         if (isWorking && event.sensor.getType() == Sensor.TYPE_LIGHT){
             message = "照度:" + event.values[0];
+            sampleFileOutput(filename, message);
         }
         textView.setText(message);
     }
@@ -86,14 +87,12 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         textView.setText("モニター開始");
         isWorking = false;
     }
-    private void  sampleFileOutput(String filename){
+    private void  sampleFileOutput(String filename ,String message){
         try{
-            String s = "you're my destiny";
-            FileOutputStream file = openFileOutput(filename+".txt", MODE_PRIVATE);
+            FileOutputStream file = openFileOutput(filename+".txt", MODE_PRIVATE|MODE_APPEND);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
-            out.write(s);
+            out.write(message);
             out.close();
-            System.out.println(getExternalFilesDir(null));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
