@@ -23,7 +23,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
     SensorManager sensorManager;
     boolean isWorking = false;
-    String filename;
+    String filename = null;
+    int i = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +53,9 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         String message = "モニタが開始されていません";
         if (isWorking && event.sensor.getType() == Sensor.TYPE_LIGHT){
             message = "照度:" + event.values[0];
-            sampleFileOutput(filename, message);
+            String content = i + "," + event.values[0];
+            sampleFileOutput(filename, content);
+            i++;
         }
         textView.setText(message);
     }
@@ -87,11 +90,12 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         textView.setText("モニター開始");
         isWorking = false;
     }
-    private void  sampleFileOutput(String filename ,String message){
+    private void  sampleFileOutput(String filename ,String content){
         try{
-            FileOutputStream file = openFileOutput(filename+".txt", MODE_PRIVATE|MODE_APPEND);
+            FileOutputStream file = openFileOutput(filename+".csv", MODE_PRIVATE|MODE_APPEND);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
-            out.write(message);
+            out.write(content);
+            out.newLine();
             out.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
