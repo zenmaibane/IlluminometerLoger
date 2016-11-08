@@ -22,13 +22,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends AppCompatActivity  implements SensorEventListener{
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
     SensorManager sensorManager;
     boolean isWorking = false;
     String fileName = null;
     TimerLog timerLog = new TimerLog();
     Timer timer = new Timer();
     int dTime = 5000; //Timerの繰り返す時間(ms)
+    long measuringTime = 10 * 1000; // 計測時間(ms)
+    long startTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,11 +42,11 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
                 if (isWorking) {
                     stopMonitoring();
                 } else {
-                    EditText editText = (EditText)findViewById(R.id.saveFileName);
+                    EditText editText = (EditText) findViewById(R.id.saveFileName);
                     fileName = editText.getText().toString().trim();
-                    if (fileName == null || fileName.equals("")){
-                        Toast.makeText(MainActivity.this, "ファイル名を入力してください",Toast.LENGTH_LONG).show();
-                    }else {
+                    if (fileName == null || fileName.equals("")) {
+                        Toast.makeText(MainActivity.this, "ファイル名を入力してください", Toast.LENGTH_LONG).show();
+                    } else {
                         timerLog.setFileName(fileName);
                         startMonitoring();
                     }
@@ -54,12 +57,17 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        TextView textView = (TextView)findViewById(R.id.sensorResult);
+        TextView textView = (TextView) findViewById(R.id.sensorResult);
         String message = "モニタが開始されていません";
-        if (isWorking && event.sensor.getType() == Sensor.TYPE_LIGHT){
-            message = "照度:" + event.values[0];
-            String content = String.valueOf(event.values[0]);
-            timerLog.setContent(content);
+        if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+            timerLog.setContent(String.valueOf(event.values[0]));
+            if (isWorking) {
+                message = "照度:" + event.values[0];
+                if (System.currentTimeMillis() - startTime >= measuringTime) {
+                    stopMonitoring();
+                    Toast.makeText(MainActivity.this, "計測が終了しました．", Toast.LENGTH_LONG).show();
+                }
+            }
         }
         textView.setText(message);
     }
@@ -68,6 +76,7 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -75,30 +84,34 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
-        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_LIGHT);
-        if (0 < sensors.size()){
+        if (0 < sensors.size()) {
             sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_UI);
         }
     }
 
-    private void startMonitoring(){
+    private void startMonitoring() {
         TextView textView = (TextView) findViewById(R.id.sensorSwitch);
+        isWorking = true;
         textView.setText("モニター停止");
         timer.schedule(timerLog, 0, dTime);
-        isWorking = true;
+        startTime = System.currentTimeMillis();
     }
-    private void stopMonitoring(){
+
+    private void stopMonitoring() {
         TextView textView = (TextView) findViewById(R.id.sensorSwitch);
+        isWorking = false;
         textView.setText("モニター開始");
         timer.cancel();
-        isWorking = false;
+        startTime = 0;
     }
-    private void  sampleFileOutput(String filename ,String content){
-        try{
-            FileOutputStream file = openFileOutput(filename+".csv", MODE_PRIVATE);
+
+    private void sampleFileOutput(String filename, String content) {
+        try {
+            FileOutputStream file = openFileOutput(filename + ".csv", MODE_APPEND);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
             out.write(content);
             out.newLine();
@@ -111,23 +124,27 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
             e.printStackTrace();
         }
     }
-    class TimerLog extends TimerTask{
+
+    class TimerLog extends TimerTask {
         String fileName;
         String content;
         int time = 0;
+
         public void setContent(String content) {
             this.content = content;
         }
+
         public void setFileName(String fileName) {
             this.fileName = fileName;
         }
+
         @Override
         public void run() {
-            if(fileName != null && content != null){
+            if (fileName != null && content != null) {
                 content = String.valueOf(time) + "," + content;
                 sampleFileOutput(this.fileName, this.content);
             }
-            time += dTime/1000;
+            time += dTime / 1000;
         }
     }
 }
