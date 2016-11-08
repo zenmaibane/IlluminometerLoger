@@ -18,13 +18,17 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity  implements SensorEventListener{
     SensorManager sensorManager;
     boolean isWorking = false;
-    String filename = null;
-    int i = 1;
+    String fileName = null;
+    TimerLog timerLog = new TimerLog();
+    Timer timer = new Timer();
+    int dTime = 5000; //Timerの繰り返す時間(ms)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,10 +40,11 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
                     stopMonitoring();
                 } else {
                     EditText editText = (EditText)findViewById(R.id.saveFileName);
-                    filename = editText.getText().toString().trim();
-                    if (filename == null || filename.equals("")){
+                    fileName = editText.getText().toString().trim();
+                    if (fileName == null || fileName.equals("")){
                         Toast.makeText(MainActivity.this, "ファイル名を入力してください",Toast.LENGTH_LONG).show();
                     }else {
+                        timerLog.setFileName(fileName);
                         startMonitoring();
                     }
                 }
@@ -53,9 +58,8 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
         String message = "モニタが開始されていません";
         if (isWorking && event.sensor.getType() == Sensor.TYPE_LIGHT){
             message = "照度:" + event.values[0];
-            String content = i + "," + event.values[0];
-            sampleFileOutput(filename, content);
-            i++;
+            String content = String.valueOf(event.values[0]);
+            timerLog.setContent(content);
         }
         textView.setText(message);
     }
@@ -83,16 +87,18 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
     private void startMonitoring(){
         TextView textView = (TextView) findViewById(R.id.sensorSwitch);
         textView.setText("モニター停止");
+        timer.schedule(timerLog, 0, dTime);
         isWorking = true;
     }
     private void stopMonitoring(){
         TextView textView = (TextView) findViewById(R.id.sensorSwitch);
         textView.setText("モニター開始");
+        timer.cancel();
         isWorking = false;
     }
     private void  sampleFileOutput(String filename ,String content){
         try{
-            FileOutputStream file = openFileOutput(filename+".csv", MODE_PRIVATE|MODE_APPEND);
+            FileOutputStream file = openFileOutput(filename+".csv", MODE_PRIVATE);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(file));
             out.write(content);
             out.newLine();
@@ -103,6 +109,25 @@ public class MainActivity extends AppCompatActivity  implements SensorEventListe
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    class TimerLog extends TimerTask{
+        String fileName;
+        String content;
+        int time = 0;
+        public void setContent(String content) {
+            this.content = content;
+        }
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+        @Override
+        public void run() {
+            if(fileName != null && content != null){
+                content = String.valueOf(time) + "," + content;
+                sampleFileOutput(this.fileName, this.content);
+            }
+            time += dTime/1000;
         }
     }
 }
