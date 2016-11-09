@@ -35,7 +35,8 @@
         android:id="@+id/saveFileName"
         android:layout_marginTop="11dp"
         android:layout_below="@+id/saveFileNameLabel"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:hint="hogehoge"/>
 
     <TextView
         android:text=" 保存ログファイル名"
@@ -45,5 +46,26 @@
         android:id="@+id/saveFileNameLabel"
         android:layout_below="@+id/sensorResult"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="計測時間(分)"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_below="@+id/saveFileName"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="21dp"
+        />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="16dp"
+        android:id="@+id/measuringTime"
+        android:hint="任意の整数"/>
 
 </RelativeLayout>

@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TimerLog timerLog = new TimerLog();
     Timer timer = new Timer();
     int dTime = 5000; //Timerの繰り返す時間(ms)
-    long measuringTime = 10 * 1000; // 計測時間(ms)
+    long measuringTime; // 計測時間(m)
     long startTime;
 
     @Override
@@ -42,17 +42,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (isWorking) {
                     stopMonitoring();
                 } else {
-                    EditText editText = (EditText) findViewById(R.id.saveFileName);
-                    fileName = editText.getText().toString().trim();
-                    if (fileName == null || fileName.equals("")) {
+                    EditText fileNameText = (EditText) findViewById(R.id.saveFileName);
+                    EditText measuringTimeText = (EditText) findViewById(R.id.measuringTime);
+                    fileName = fileNameText.getText().toString().trim();
+                    if (isNullorBlank(fileName)) {
                         Toast.makeText(MainActivity.this, "ファイル名を入力してください", Toast.LENGTH_LONG).show();
-                    } else {
+                    }else if (isNullorBlank(measuringTimeText.getText().toString())){
+                        Toast.makeText(MainActivity.this, "計測時間を入力してください", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        measuringTime = Long.parseLong(measuringTimeText.getText().toString()) * 60 * 1000;
                         timerLog.setFileName(fileName);
                         startMonitoring();
                     }
                 }
             }
         });
+    }
+
+    protected boolean isNullorBlank(String str){
+        return (str == null || str.equals(""));
     }
 
     @Override
