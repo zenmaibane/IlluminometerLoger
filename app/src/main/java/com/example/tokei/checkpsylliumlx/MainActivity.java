@@ -27,8 +27,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     SensorManager sensorManager;
     boolean isWorking = false;
     String fileName = null;
-    TimerLog timerLog = new TimerLog();
-    Timer timer = new Timer();
+    Timer timer;
+    TimerLog timerLog;
     int dTime = 5000; //Timerの繰り返す時間(ms)
     long measuringTime; // 計測時間(m)
     long startTime;
@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initialization();
         setContentView(R.layout.activity_main);
         TextView systemMessage = (TextView) findViewById(R.id.systemMessage);
         systemMessage.setText("モニタを開始してください．");
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                     else {
                         measuringTime = Long.parseLong(measuringTimeText.getText().toString()) * 60 * 1000;
+                        initialization();
                         timerLog.setFileName(fileName);
                         startMonitoring();
                     }
@@ -67,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     protected boolean isNullOrBlank(String str){
         return (str == null || str.equals(""));
+    }
+    protected void initialization(){
+        timer = new Timer();
+        timerLog = new TimerLog();
     }
 
     @Override
@@ -106,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void startMonitoring() {
+
         int countDown = 5;
         Toast.makeText(MainActivity.this, String.valueOf(countDown) + "秒後に開始します", Toast.LENGTH_LONG).show();
         updateText = new Runnable() {
