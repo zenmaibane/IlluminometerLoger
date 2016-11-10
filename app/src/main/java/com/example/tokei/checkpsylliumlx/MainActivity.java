@@ -4,6 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -31,11 +32,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int dTime = 5000; //Timerの繰り返す時間(ms)
     long measuringTime; // 計測時間(m)
     long startTime;
+    private Handler mHandler = new Handler();
+    private Runnable updateText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TextView systemMessage = (TextView) findViewById(R.id.systemMessage);
+        systemMessage.setText("モニタを開始してください．");
         findViewById(R.id.sensorSwitch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,9 +50,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     EditText fileNameText = (EditText) findViewById(R.id.saveFileName);
                     EditText measuringTimeText = (EditText) findViewById(R.id.measuringTime);
                     fileName = fileNameText.getText().toString().trim();
-                    if (isNullorBlank(fileName)) {
+                    if (isNullOrBlank(fileName)) {
                         Toast.makeText(MainActivity.this, "ファイル名を入力してください", Toast.LENGTH_LONG).show();
-                    }else if (isNullorBlank(measuringTimeText.getText().toString())){
+                    }else if (isNullOrBlank(measuringTimeText.getText().toString())){
                         Toast.makeText(MainActivity.this, "計測時間を入力してください", Toast.LENGTH_LONG).show();
                     }
                     else {
@@ -60,25 +65,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
-    protected boolean isNullorBlank(String str){
+    protected boolean isNullOrBlank(String str){
         return (str == null || str.equals(""));
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        TextView textView = (TextView) findViewById(R.id.sensorResult);
-        String message = "モニタが開始されていません";
         if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             timerLog.setContent(String.valueOf(event.values[0]));
             if (isWorking) {
-                message = "照度:" + event.values[0];
-                if (System.currentTimeMillis() - startTime >= measuringTime) {
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                TextView systemMessage = (TextView) findViewById(R.id.systemMessage);
+                systemMessage.setText("計測中(経過時間"+ elapsedTime/1000+ "秒)\t照度:" + event.values[0]);
+                if (elapsedTime >= measuringTime) {
                     stopMonitoring();
-                    Toast.makeText(MainActivity.this, "計測が終了しました．", Toast.LENGTH_LONG).show();
                 }
             }
         }
-        textView.setText(message);
     }
 
     @Override
@@ -103,17 +106,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void startMonitoring() {
-        TextView textView = (TextView) findViewById(R.id.sensorSwitch);
-        isWorking = true;
-        textView.setText("モニター停止");
-        timer.schedule(timerLog, 0, dTime);
-        startTime = System.currentTimeMillis();
+        int countDown = 5;
+        Toast.makeText(MainActivity.this, String.valueOf(countDown) + "秒後に開始します", Toast.LENGTH_LONG).show();
+        updateText = new Runnable() {
+            public void run() {
+                TextView sensorSwitch = (TextView) findViewById(R.id.sensorSwitch);
+                isWorking = true;
+                sensorSwitch.setText("モニター停止");
+                timer.schedule(timerLog, 0, dTime);
+                startTime = System.currentTimeMillis();
+            }
+        };
+        mHandler.postDelayed(updateText, countDown * 1000);
     }
 
     private void stopMonitoring() {
-        TextView textView = (TextView) findViewById(R.id.sensorSwitch);
+        TextView sensorSwitch = (TextView) findViewById(R.id.sensorSwitch);
+        TextView systemMessage = (TextView) findViewById(R.id.systemMessage);
         isWorking = false;
-        textView.setText("モニター開始");
+        sensorSwitch.setText("モニター開始");
+        systemMessage.setText("計測が終了しました");
         timer.cancel();
         startTime = 0;
     }
