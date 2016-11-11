@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            e.printStackTrace();git
         } catch (IOException e) {
             e.printStackTrace();
         }
