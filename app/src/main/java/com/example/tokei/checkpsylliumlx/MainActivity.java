@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();git
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -169,8 +169,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         @Override
         public void run() {
             if (fileName != null && content != null) {
-                content = String.valueOf(time) + "," + content;
-                sampleFileOutput(this.fileName, this.content);
+                sampleFileOutput(this.fileName, String.valueOf(time) + "," + content);
             }
             time += dTime / 1000;
         }
